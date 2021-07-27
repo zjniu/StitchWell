@@ -11,8 +11,6 @@ from nd2reader.parser import Parser
 from skimage.registration import phase_cross_correlation
 from tqdm.auto import tqdm
 
-# matplotlib nd2reader numpy opencv scikit-image tifffile tqdm
-
 def nd2Open(file):
 
     file = open(file,'rb')
@@ -90,8 +88,8 @@ def calculateOffsets(images,frames,i1,axis,totalMargins,stitchChannel=0):
 
 def filter(array,m=2):
 
-    if len(array[array > 0]) != len(array[array > 0]):
-        if len(array[array > 0]) > len(array[array > 0]):
+    if len(array[array > 0]) != len(array[array < 0]):
+        if len(array[array > 0]) > len(array[array < 0]):
             array = array[array > 0]
         else:
             array = array[array < 0]
@@ -186,7 +184,7 @@ def seeStitch(stitched,performance,adjustment,previewChannel=0):
         stitchedAdjusted = imAdjust(stitched,*adjustment)
     plt.figure(figsize=(6,6))
     ax = plt.subplot(1,1,1)
-    imshow(strideScale,ax,stitchedAdjusted,cmap='gray')
+    imshow(strideScale,ax,stitchedAdjusted,vmin=0,vmax=255,cmap='gray')
     plt.show()
 
 def bulkStitch(fileDir,outDir,stitchChannel=0):
