@@ -13,7 +13,7 @@ conda activate StitchWell
 ```
 2) Install required packages.
 ```
-conda install jupyter matplotlib nd2reader numpy opencv pyqt5 scikit-image tifffile tqdm
+conda install jupyter matplotlib nd2reader numba numpy opencv pyqt5 scikit-image tifffile tqdm
 ```
 3) Clone repository.
 ```
