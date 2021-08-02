@@ -45,7 +45,7 @@ def calculateMargins(metadata,width,height):
 
     return totalMargins,xMargins,yMargins
 
-def calculateOffsets(images,frames,i1,axis,totalMargins,stitchChannel=0):
+def calculateOffsets(images,frames,i1,axis,totalMargins,stitchChannel=1):
 
     if axis == 'x':
         axisIndex = 1
@@ -104,18 +104,14 @@ def filter(array,m=2):
 
     return array
 
-def stitch(file,stitchChannel=0,progress=True):
+def stitch(file,stitchChannel=1,progress=True):
 
     images,rawMetadata = nd2Open(file)
 
     x,y = rawMetadata.x_data,rawMetadata.y_data
 
-    x -= np.mean(x)
-    y -= np.mean(y)
-
     coords = np.array((x,y))
-    v = coords[:,0] - coords[:,1]
-    theta = - np.arctan(v[1] / v[0])
+    theta = rawMetadata.image_metadata_sequence[b'SLxPictureMetadata'][b'dAngle']
     c,s = np.cos(theta),np.sin(theta)
     R = np.array(((c,-s),(s,c)))
     x,y = np.rint(np.dot(R, coords))
@@ -138,6 +134,10 @@ def stitch(file,stitchChannel=0,progress=True):
     for coord in list(zip(xScaled,yScaled)):
         grid[yDim - int(coord[1]) - 1,int(coord[0])] = i
         i += 1
+
+    rotation = rawMetadata.image_metadata_sequence[b'SLxPictureMetadata'][b'sPicturePlanes'][b'sSampleSetting'][b'a0'][b'pCameraSetting'][b'PropertiesFast'][b'Rotate']
+
+    np.rot90(grid,round((180 - rotation) / 2))
 
     middleRow = grid[round(grid.shape[0] / 2),:]
     middleCol = grid[:,round(grid.shape[0] / 2)]
@@ -171,7 +171,7 @@ def stitch(file,stitchChannel=0,progress=True):
 
     return stitched
 
-def seeStitch(stitched,performance,adjustment,previewChannel=0):
+def seeStitch(stitched,performance,adjustment,previewChannel=1):
 
     if stitched.ndim == 3:
         stitched = stitched[previewChannel-1]
@@ -187,7 +187,7 @@ def seeStitch(stitched,performance,adjustment,previewChannel=0):
     imshow(strideScale,ax,stitchedAdjusted,vmin=0,vmax=255,cmap='gray')
     plt.show()
 
-def bulkStitch(fileDir,outDir,stitchChannel=0):
+def bulkStitch(fileDir,outDir,stitchChannel=1):
 
     files = [file for file in os.listdir(fileDir) if os.path.isfile(os.path.join(fileDir,file)) and file.endswith('.nd2')]
 
