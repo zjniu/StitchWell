@@ -11,9 +11,10 @@ The .nd2 acquired from Nikon Elements has metadata including the following prope
 conda create -n StitchWell python
 conda activate StitchWell
 ```
-2) Install required packages.
+2) Install required packages through `conda` or `pip`.
 ```
 conda install jupyter matplotlib nd2reader numba numpy opencv pyqt5 scikit-image tifffile tqdm
+pip install jupyter matplotlib nd2reader numba numpy opencv-python pyqt5 scikit-image tifffile tqdm
 ```
 3) Clone repository.
 ```
