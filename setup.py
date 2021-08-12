@@ -1,6 +1,6 @@
 from setuptools import setup,find_packages
 
-VERSION = "1.0"
+VERSION = "2.0"
 DESCRIPTION = "ND2 Stitcher"
 LONG_DESCRIPTION = "A pure Python implementation for bulk stitching ND2 files."
 
