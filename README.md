@@ -1,48 +1,41 @@
 # StitchWell
-A pure Python implementation for bulk stitching .nd2 and saving as .tif.
+A pure Python implementation for bulk stitching ND2 files.
 
 ## General
-The .nd2 acquired from Nikon Elements has metadata including the following properties: scan coordinates (x,y), channels (c), etc. Extracting this information requires the open source package `nd2reader` to run.
+ND2 files acquired from Nikon Elements has metadata including the following properties: scan coordinates (x,y), channels (c), stack (z), and time (t). Extracting this information requires the open source package `nd2reader` to run.
 
 ## Installation
 
-1) Create and activate conda environment. 
+Install StitchWell from [PyPI](https://pypi.org/project/stitchwell/).
+
 ```
-conda create -n StitchWell python
-conda activate StitchWell
-```
-2) Install required packages through `conda` or `pip`.
-```
-conda install -c conda-forge jupyter matplotlib nd2reader numba numpy opencv pyqt scikit-image tifffile tqdm
-pip install jupyter matplotlib nd2reader numba numpy opencv-python pyqt5 scikit-image tifffile tqdm
-```
-3) Clone repository.
-```
-git clone https://github.com/SydShafferLab/StitchWell.git
-cd StitchWell
-```
-4) Launch Jupyter notebook and open `stitch.ipynb`.
-```
-jupyter notebook
+pip install stitchwell
 ```
 
-## Modules
+## Usage
 
-1) Initiate GUI (for testing and seeing stitch)
-2) Test Stitch 
-* `file` path to .nd2
-* `stitchChannel` channel used for image registration adjustments (only for multichannel .nd2)
-3) See Stitch
-* `performance` preview presets (`fast`, `normal`, or `fancy`)
-* `adjustment` brightness and contrast adjustment
-* `previewChannel` channel used for preview (only for multichannel .nd2)
-4) Bulk Stitch
-* `fileDir` input directory with .nd2
-* `outDir` output directory for stitched .tif
-* `stitchChannel` channel used for image registration adjustments (only for multichannel .nd2)
- 
-## Todo
-* Implement fast per frame image registration adjustments.
-* Add support for .nd2 with stack (z) and timelapse (t) data.
-  * Use `nd2toTiff` MATLAB script for now.
-* Add options for overlap blending.
+Stitch ND2 into a NumPy array.
+
+```python
+from stitchwell import StitchWell
+
+# path: path to a ND2 file or a folder containing ND2 files
+# fileIndex: index of file in a folder to stitch, leave as 0 if the path is a file
+# overlap = overlap percentage used for stitching, leave as None for automatic overlap calculation
+# stitchChannel = channel used for image registration adjustments (only for multichannel .nd2)
+
+stitched = StitchWell(path).stitch(fileIndex,overlap,stitchChannel)
+```
+
+Stitch ND2 and save as TIFF.
+
+```python
+from stitchwell import StitchWell
+
+# path: path to a ND2 file or a folder containing ND2 files
+# outDir: path to output directory for saving stitched TIFF files
+# overlap = overlap percentage used for stitching, leave as None for automatic overlap calculation
+# stitchChannel = channel used for image registration adjustments (only for multichannel .nd2)
+
+StitchWell(path).saveTIFF(outDir,overlap,stitchChannel)
+```
