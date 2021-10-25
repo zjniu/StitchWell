@@ -26,12 +26,13 @@ class StitchWell:
         file = open(os.path.join(self.fileDir,self.files[fileIndex]),'rb')
         images = ND2Reader(file)
         axes = dict(images.sizes)
-        axes.pop('v')
+        if 'v' in axes.keys():
+            images.iter_axes = 'v'
+            axes.pop('v')
         if axes['t'] == 1:
             axes.pop('t')
         axes = ''.join(reversed(list(axes.keys())))
         images.bundle_axes = axes
-        images.iter_axes = 'v'
 
         rawMetadata = Parser(file)._raw_metadata
 
@@ -125,6 +126,12 @@ class StitchWell:
     def stitch(self,fileIndex,overlap=None,stitchChannel=0):
 
         self.images,self.rawMetadata,self.axes = self.nd2Open(fileIndex)
+
+        if 'v' not in self.images.iter_axes:
+
+            stitched = self.images[0].astype(np.uint16)
+
+            return stitched
 
         positions = self.rawMetadata.image_metadata[b'SLxExperiment'][b'uLoopPars'][b'Points'][b'']
         coords = np.array([(position[b'dPosX'],position[b'dPosY']) for position in positions]).T
