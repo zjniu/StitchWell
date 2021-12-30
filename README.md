@@ -20,11 +20,10 @@ Stitch ND2 into a NumPy array.
 from stitchwell import StitchWell
 
 # path: path to a ND2 file or a folder containing ND2 files
-# fileIndex: index of file in a folder to stitch, leave as 0 if the path is a file
-# overlap = overlap percentage used for stitching, leave as None for automatic overlap calculation
-# stitchChannel = channel used for image registration adjustments (only for multichannel .nd2)
+# fileIndex: index of file in a folder to stitch
+# overlap = overlap percentage used for stitching
 
-stitched = StitchWell(path).stitch(fileIndex,overlap,stitchChannel)
+stitched = StitchWell(path).stitch(fileIndex,overlap)
 ```
 
 Stitch ND2 and save as TIFF.
@@ -34,8 +33,7 @@ from stitchwell import StitchWell
 
 # path: path to a ND2 file or a folder containing ND2 files
 # outDir: path to output directory for saving stitched TIFF files
-# overlap = overlap percentage used for stitching, leave as None for automatic overlap calculation
-# stitchChannel = channel used for image registration adjustments (only for multichannel .nd2)
+# overlap = overlap percentage used for stitching
 
-StitchWell(path).saveTIFF(outDir,overlap,stitchChannel)
+StitchWell(path).saveTIFF(outDir,overlap)
 ```
