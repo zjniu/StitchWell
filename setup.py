@@ -13,7 +13,7 @@ setup(
     long_description_content_type="text/markdown",
     long_description=LONG_DESCRIPTION,
     packages=find_packages(),
-    install_requires=['nd2reader', 'numpy', 'scikit-image', 'tifffile', 'tqdm'],
+    install_requires=['nd2reader', 'numpy', 'tifffile', 'tqdm'],
     keywords=["python", "ND2", "stitch"],
     classifiers=[
         "Development Status :: 5 - Production/Stable",
