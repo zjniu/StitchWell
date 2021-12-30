@@ -2,7 +2,6 @@ import numpy as np
 
 from nd2reader import ND2Reader
 from pathlib import Path
-from nd2reader.parser import Parser
 from skimage.registration import phase_cross_correlation
 from tifffile import imwrite
 from tqdm.auto import tqdm
@@ -36,7 +35,7 @@ class StitchWell:
         axes = ''.join(reversed(list(axes.keys())))
         images.bundle_axes = axes
 
-        rawMetadata = Parser(file)._raw_metadata
+        rawMetadata = images.parser._raw_metadata
 
         return images, rawMetadata, axes
 
