@@ -1,6 +1,6 @@
-from setuptools import setup,find_packages
+from setuptools import setup, find_packages
 
-VERSION = "2.0"
+VERSION = "2.1"
 DESCRIPTION = "ND2 Stitcher"
 LONG_DESCRIPTION = "A pure Python implementation for bulk stitching ND2 files."
 
@@ -13,8 +13,8 @@ setup(
     long_description_content_type="text/markdown",
     long_description=LONG_DESCRIPTION,
     packages=find_packages(),
-    install_requires=['nd2reader','numpy','scikit-image','tifffile','tqdm'],
-    keywords=["python","ND2","stitch"],
+    install_requires=['nd2reader', 'numpy', 'scikit-image', 'tifffile', 'tqdm'],
+    keywords=["python", "ND2", "stitch"],
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Science/Research",
