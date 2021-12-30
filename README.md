@@ -35,5 +35,5 @@ from stitchwell import StitchWell
 # outDir: path to output directory for saving stitched TIFF files
 # overlap = overlap percentage used for stitching
 
-StitchWell(path).saveTIFF(outDir,overlap)
+StitchWell(path).save_tiff(outDir, overlap)
 ```

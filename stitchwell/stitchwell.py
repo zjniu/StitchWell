@@ -21,9 +21,13 @@ class StitchWell:
             self.files = [file for file in path.iterdir() if
                           file.is_file() and file.suffix == '.nd2']
 
-    def nd2Open(self, fileIndex):
+        self.images = None
+        self.raw_metadata = None
+        self.axes = None
 
-        file = open(self.files[fileIndex], 'rb')
+    def read_nd2(self, file_index):
+
+        file = open(self.files[file_index], 'rb')
         images = ND2Reader(file)
         axes = dict(images.sizes)
         if 'v' in axes.keys():
@@ -34,76 +38,75 @@ class StitchWell:
         axes = ''.join(reversed(list(axes.keys())))
         images.bundle_axes = axes
 
-        rawMetadata = images.parser._raw_metadata
+        raw_metadata = images.parser._raw_metadata
 
-        return images, rawMetadata, axes
+        return images, raw_metadata, axes
 
-    def calculateTotalMargins(self, width, height):
+    def calculate_total_margins(self, width, height):
 
-        xTotalMargin = self.images.metadata['width'] - width
-        yTotalMargin = self.images.metadata['height'] - height
-        totalMargins = (xTotalMargin, yTotalMargin)
+        x_total_margin = self.images.metadata['width'] - width
+        y_total_margin = self.images.metadata['height'] - height
+        total_margins = (x_total_margin, y_total_margin)
 
-        return totalMargins
+        return total_margins
 
-    def calculateMargins(self, width, height):
+    def calculate_margins(self, width, height):
 
-        totalMargins = self.calculateTotalMargins(width, height)
+        total_margins = self.calculate_total_margins(width, height)
 
-        xLeftMargin = int(np.floor(totalMargins[0] / 2))
-        xRightMargin = xLeftMargin + width
-        xMargins = (xLeftMargin, xRightMargin)
+        x_left_margin = int(np.floor(total_margins[0] / 2))
+        x_right_margin = x_left_margin + width
+        x_margins = (x_left_margin, x_right_margin)
 
-        yTopMargin = int(np.floor(totalMargins[1] / 2))
-        yBottomMargin = yTopMargin + height
-        yMargins = (yTopMargin, yBottomMargin)
+        y_top_margin = int(np.floor(total_margins[1] / 2))
+        y_bottom_margin = y_top_margin + height
+        y_margins = (y_top_margin, y_bottom_margin)
 
-        return xMargins, yMargins
+        return x_margins, y_margins
 
-    def stitch(self, fileIndex=0, overlap=0.1):
+    def stitch(self, file_index=0, overlap=0.1):
 
-        self.images, self.rawMetadata, self.axes = self.nd2Open(fileIndex)
+        self.images, self.raw_metadata, self.axes = self.read_nd2(file_index)
 
         if 'v' not in self.images.iter_axes:
             stitched = self.images[0].astype(np.uint16)
 
             return stitched
 
-        positions = self.rawMetadata.image_metadata[b'SLxExperiment'][b'uLoopPars'][b'Points'][b'']
+        positions = self.raw_metadata.image_metadata[b'SLxExperiment'][b'uLoopPars'][b'Points'][b'']
         coords = np.array([(position[b'dPosX'], position[b'dPosY']) for position in positions]).T
 
-        theta = self.rawMetadata.image_metadata_sequence[b'SLxPictureMetadata'][b'dAngle']
+        theta = self.raw_metadata.image_metadata_sequence[b'SLxPictureMetadata'][b'dAngle']
         c, s = np.cos(theta), np.sin(theta)
-        R = np.array(((c, -s), (s, c)))
-        x, y = np.rint(np.dot(R, coords))
+        r = np.array(((c, -s), (s, c)))
+        x, y = np.rint(np.dot(r, coords))
 
-        xDim = round(np.ptp(x) / abs(x[0] - x[1])) + 1
-        yDim = round(np.ptp(y) / abs(x[0] - x[1])) + 1
+        x_dim = round(np.ptp(x) / abs(x[0] - x[1])) + 1
+        y_dim = round(np.ptp(y) / abs(x[0] - x[1])) + 1
 
-        xScaled = np.rint((x - min(x)) / (np.ptp(x) / (xDim - 1)))
-        yScaled = np.rint((y - min(y)) / (np.ptp(y) / (yDim - 1)))
+        x_scaled = np.rint((x - min(x)) / (np.ptp(x) / (x_dim - 1)))
+        y_scaled = np.rint((y - min(y)) / (np.ptp(y) / (y_dim - 1)))
 
         width = round(self.images.metadata['width'] * (1 - overlap))
         height = round(self.images.metadata['height'] * (1 - overlap))
-        xMargins, yMargins = self.calculateMargins(width, height)
+        x_margins, y_margins = self.calculate_margins(width, height)
 
-        absDim = (*self.images.frame_shape[:-2], yDim * height, xDim * width)
+        abs_dim = (*self.images.frame_shape[:-2], y_dim * height, x_dim * width)
 
-        stitched = np.zeros(absDim, dtype=np.uint16)
+        stitched = np.zeros(abs_dim, dtype=np.uint16)
 
-        i = 0
         for i in tqdm(self.images.metadata['fields_of_view'], desc='Image Progress'):
-            xArray = int(xScaled[i] * width)
-            yArray = int(absDim[-2] - yScaled[i] * height)
+            x_array = int(x_scaled[i] * width)
+            y_array = int(abs_dim[-2] - y_scaled[i] * height)
 
-            stitched[..., yArray - height:yArray, xArray:xArray + width] = self.images[i][..., yMargins[0]:yMargins[1],
-                                                                           xMargins[0]:xMargins[1]]
+            stitched[..., y_array - height:y_array, x_array:x_array + width] = \
+                self.images[i][..., y_margins[0]:y_margins[1], x_margins[0]:x_margins[1]]
 
         return stitched
 
-    def saveTIFF(self, outDir, overlap=0.1):
+    def save_tiff(self, out_dir, overlap=0.1):
 
-        for fileIndex, file in enumerate(tqdm(self.files, desc='Total Progess')):
-            stitched = self.stitch(fileIndex, overlap, stitchChannel)
-            imwrite(Path(outDir).joinpath(file.with_suffix('.tif').name), stitched, metadata={'axes': self.axes},
-                    ome=True, photometric='minisblack')
+        for fileIndex, file in enumerate(tqdm(self.files, desc='Total Progress')):
+            stitched = self.stitch(fileIndex, overlap)
+            imwrite(Path(out_dir).joinpath(file.with_suffix('.tif').name), stitched,
+                    metadata={'axes': self.axes}, ome=True, photometric='minisblack')
