@@ -23,7 +23,7 @@ from stitchwell import StitchWell
 # fileIndex: index of file in a folder to stitch
 # overlap = overlap percentage used for stitching
 
-stitched = StitchWell(path).stitch(fileIndex,overlap)
+stitched = StitchWell(path).stitch(fileIndex, overlap)
 ```
 
 Stitch ND2 and save as TIFF.
