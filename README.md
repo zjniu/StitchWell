@@ -1,3 +1,5 @@
+# IMPORTANT: StitchWell is no longer maintained and will not receive any future updates. Please use [DeepTile](https://github.com/arjunrajlaboratory/DeepTile) instead.
+
 # StitchWell
 A pure Python implementation for bulk stitching ND2 files.
 
